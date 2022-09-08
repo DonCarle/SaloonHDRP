@@ -93,12 +93,64 @@ MonoBehaviour:
   rendererListCulling: 0
   DLSSProjectId: 000000
   useDLSSCustomProjectId: 0
-  supportProbeVolumes: 0
+  supportProbeVolumes: 1
   supportRuntimeDebugDisplay: 0
   apvScenesData:
-    serializedBounds: []
-    serializedHasVolumes: []
-    serializedProfiles: []
-    serializedBakeSettings: []
-    serializedBakingSets: []
+    serializedBounds:
+    - sceneGUID: 5c2d46d7940372343a237a4556ebb00d
+      bounds:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 81, y: 81, z: 81}
+    serializedHasVolumes:
+    - sceneGUID: 5c2d46d7940372343a237a4556ebb00d
+      hasProbeVolumes: 1
+    - sceneGUID: 5aec8a848106d144896397001f40ed8c
+      hasProbeVolumes: 0
+    serializedProfiles:
+    - sceneGUID: 5c2d46d7940372343a237a4556ebb00d
+      profile: {fileID: 11400000, guid: 7d0bd4722e127ce48911e0d3139ede98, type: 2}
+    - sceneGUID: 5aec8a848106d144896397001f40ed8c
+      profile: {fileID: 11400000, guid: 7d0bd4722e127ce48911e0d3139ede98, type: 2}
+    serializedBakeSettings:
+    - sceneGUID: 5c2d46d7940372343a237a4556ebb00d
+      settings:
+        dilationSettings:
+          enableDilation: 1
+          dilationDistance: 1
+          dilationValidityThreshold: 0.25
+          dilationIterations: 1
+          squaredDistWeighting: 1
+        virtualOffsetSettings:
+          useVirtualOffset: 1
+          outOfGeoOffset: 0.01
+          searchMultiplier: 0.2
+    - sceneGUID: 5aec8a848106d144896397001f40ed8c
+      settings:
+        dilationSettings:
+          enableDilation: 1
+          dilationDistance: 1
+          dilationValidityThreshold: 0.25
+          dilationIterations: 1
+          squaredDistWeighting: 1
+        virtualOffsetSettings:
+          useVirtualOffset: 1
+          outOfGeoOffset: 0.01
+          searchMultiplier: 0.2
+    serializedBakingSets:
+    - name: Default
+      sceneGUIDs:
+      - 5c2d46d7940372343a237a4556ebb00d
+      - 5aec8a848106d144896397001f40ed8c
+      settings:
+        dilationSettings:
+          enableDilation: 1
+          dilationDistance: 1
+          dilationValidityThreshold: 0.25
+          dilationIterations: 1
+          squaredDistWeighting: 1
+        virtualOffsetSettings:
+          useVirtualOffset: 1
+          outOfGeoOffset: 0.01
+          searchMultiplier: 0.2
+      profile: {fileID: 11400000, guid: 7d0bd4722e127ce48911e0d3139ede98, type: 2}
   m_Version: 3
