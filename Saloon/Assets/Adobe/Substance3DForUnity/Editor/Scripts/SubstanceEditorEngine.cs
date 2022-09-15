@@ -66,18 +66,20 @@ namespace Adobe.SubstanceEditor
 
         private bool _isLoaded;
 
+        public bool IsInitialized => _isLoaded;
+
         /// <summary>
         /// Initalize substance engine.
         /// </summary>
         private void Setup()
         {
+            _isLoaded = false;
             PluginPipelines.GetCurrentPipelineInUse();
             var enginePath = PlatformUtils.GetEnginePath();
             var pluginPath = PlatformUtils.GetPluginPath();
             Engine.Initialize(pluginPath, enginePath);
             EditorApplication.update += Update;
             Undo.undoRedoPerformed += UndoCallback;
-            _isLoaded = false;
         }
 
         private void UndoCallback()
@@ -101,6 +103,7 @@ namespace Adobe.SubstanceEditor
         /// </summary>
         private void TearDown()
         {
+            _isLoaded = false;
             EditorApplication.update -= Update;
             Undo.undoRedoPerformed -= UndoCallback;
             Engine.Shutdown();
@@ -285,7 +288,17 @@ namespace Adobe.SubstanceEditor
                 }
                 else
                 {
-                    EditorUtility.SetDirty(graph.OutputMaterial);
+                    if (graph.OutputMaterial == null)
+                    {
+                        AssetCreationUtils.CreateMaterialOrUpdateMaterial(graph, graph.Name);
+                        EditorUtility.SetDirty(graph);
+                        EditorUtility.SetDirty(graph.OutputMaterial);
+                        AssetDatabase.Refresh();
+                    }
+                    else
+                    {
+                        EditorUtility.SetDirty(graph.OutputMaterial);
+                    }
                 }
 
                 handler.InRenderWork = false;
@@ -339,7 +352,12 @@ namespace Adobe.SubstanceEditor
                 _activeSubstanceDictionary.Add(substanceInstance.GUID, substanceArchive);
             }
 
-            _delayiedInitilization.Enqueue(instancePath);
+            if (!string.IsNullOrEmpty(instancePath))
+                _delayiedInitilization.Enqueue(instancePath);
+            else
+            {
+                _managedInstances.Add(substanceInstance);
+            }
         }
 
         /// <summary>
@@ -518,6 +536,9 @@ namespace Adobe.SubstanceEditor
 
                     foreach (var substanceInstance in importer._instancesCopy)
                     {
+                        if (!substanceInstance.IsRuntimeOnly)
+                            return;
+
                         InitializeInstance(substanceInstance, AssetDatabase.GetAssetPath(substanceInstance));
 
                         if (TryGetHandlerFromInstance(substanceInstance, out SubstanceNativeHandler fileHandler))

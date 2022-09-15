@@ -69,7 +69,16 @@ namespace Adobe.SubstanceEditor
             _graphOutputs = serializedObject.FindProperty("Output");
             _presetProperty = serializedObject.FindProperty("CurrentStatePreset");
 
-            SubstanceEditorEngine.instance.TryGetHandlerFromInstance(_target, out _handler);
+            if (!SubstanceEditorEngine.instance.TryGetHandlerFromInstance(_target, out _handler))
+            {
+                if (!SubstanceEditorEngine.instance.IsInitialized)
+                    return;
+
+                SubstanceEditorEngine.instance.InitializeInstance(_target, null);
+
+                if (SubstanceEditorEngine.instance.TryGetHandlerFromInstance(_target, out _handler))
+                    _target.RuntimeInitialize(_handler, _target.IsRuntimeOnly);
+            }
         }
 
         public void OnDisable()
@@ -98,8 +107,8 @@ namespace Adobe.SubstanceEditor
 
         public override void OnInspectorGUI()
         {
-            if(_handler == null)
-                if(!SubstanceEditorEngine.instance.TryGetHandlerFromInstance(_target, out _handler))
+            if (_handler == null)
+                if (!SubstanceEditorEngine.instance.TryGetHandlerFromInstance(_target, out _handler))
                     return;
 
             if (_materialPreviewEditor == null)
@@ -181,14 +190,18 @@ namespace Adobe.SubstanceEditor
 
             GUILayout.Space(8);
 
-            if (DrawInputs())
+            DrawInputs(out bool serializedObject, out bool renderGraph);
+
+            if (renderGraph)
             {
                 var newPreset = _handler.CreatePresetFromCurrentState(_target.Index);
                 _presetProperty.stringValue = newPreset;
                 SubstanceEditorEngine.instance.SubmitAsyncRenderWork(_handler, _target);
                 valuesChanged = true;
-                UpdateInputsVisibilty();
             }
+
+            if (serializedObject)
+                valuesChanged = true;
 
             DrawPresentExport(_target);
 
@@ -206,10 +219,6 @@ namespace Adobe.SubstanceEditor
             }
 
             return valuesChanged;
-        }
-
-        private void UpdateInputsVisibilty()
-        {
         }
 
         #region Texture Generation Settings
@@ -270,34 +279,33 @@ namespace Adobe.SubstanceEditor
         /// <summary>
         /// Draws substance file inputs.
         /// </summary>
-        /// <returns>True if any input value has changed.</returns>
-        private bool DrawInputs()
+        /// <param name="serializeObject">True if object properties have changed.</param>
+        /// <param name="renderGraph">True if substance graph must be re rendered.</param>
+        private void DrawInputs(out bool serializeObject, out bool renderGraph)
         {
-            if (_handler == null)
-            {
-                if (!SubstanceEditorEngine.instance.TryGetHandlerFromInstance(_target, out _handler))
-                {
-                    return false;
-                }
-            }
-
-            bool changed = false;
+            renderGraph = false;
+            serializeObject = false;
 
             EditorGUILayout.Space();
 
             if (DrawGrouplessInputs(_inputGroupingHelper.GrouplessInputs))
-                changed = true;
+            {
+                renderGraph = true;
+                serializeObject = true;
+            }
 
             EditorGUILayout.Space();
 
             foreach (var groupInfo in _inputGroupingHelper.InputGroups)
             {
                 if (DrawInputGroup(groupInfo))
-                    changed = true;
+                {
+                    renderGraph = true;
+                    serializeObject = true;
+                }
+
                 EditorGUILayout.Space();
             }
-
-            return changed;
         }
 
         /// <summary>
